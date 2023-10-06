@@ -1,0 +1,25 @@
+name: voice_recorder_app
+description: Voice recorder made in flutter
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.1.1 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_sound: ^9.2.13
+  permission_handler: ^11.0.0
+  audioplayers: ^5.2.0
+  path_provider: ^2.1.1
+  logger: ^1.4.0
+  intl: ^0.18.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.3
+
+flutter:
+  uses-material-design: true
