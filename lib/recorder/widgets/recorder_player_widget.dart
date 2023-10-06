@@ -5,14 +5,15 @@ import 'package:flutter_sound/public/flutter_sound_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
+import 'package:voice_recorder_app/main.dart';
+import 'package:voice_recorder_app/recorder/store/recorder_store.dart';
 
-class RecorderView extends StatefulWidget {
-  final Function onSaved;
+class RecorderPlayerWidget extends StatefulWidget {
 
-  const RecorderView({Key? key, required this.onSaved}) : super(key: key);
+  const RecorderPlayerWidget({Key? key}) : super(key: key);
 
   @override
-  State<RecorderView> createState() => _RecorderViewState();
+  State<RecorderPlayerWidget> createState() => _RecorderPlayerWidgetState();
 }
 
 enum RecordingState {
@@ -22,12 +23,13 @@ enum RecordingState {
   stopped,
 }
 
-class _RecorderViewState extends State<RecorderView> {
+class _RecorderPlayerWidgetState extends State<RecorderPlayerWidget> {
   IconData _recordIcon = Icons.mic_none;
   String _recordText = 'Click To Start';
   RecordingState _recordingState = RecordingState.unSet;
   bool _isRecorderReady = false;
   final _recorder = FlutterSoundRecorder(logLevel: Level.nothing);
+  final RecorderStore _recorderStore = getIt<RecorderStore>();
 
   @override
   void initState() {
@@ -121,7 +123,7 @@ class _RecorderViewState extends State<RecorderView> {
 
   _stopRecording() async {
     await _recorder.stopRecorder();
-    widget.onSaved();
+    _recorderStore.loadRecordFiles();
   }
 
   Future<void> _recordVoice() async {
