@@ -11,11 +11,14 @@ class RecorderFile {
     required this.dtCreate,
   });
 
-  get name => path.split('/').last;
+  String get name => path.split('/').last;
 
-  get sizeInMb => size ~/ 1024;
+  String get nameWithoutExtension =>
+      path.split('/').last.replaceAll('.aac', '');
 
-  get dtCreateFormatted =>
+  int get sizeInMb => size ~/ 1024;
+
+  String get dtCreateFormatted =>
       DateFormat('EEE, MMM d, ' 'yyyy, HH:mm').format(dtCreate);
 
   @override

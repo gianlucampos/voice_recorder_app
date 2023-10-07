@@ -116,8 +116,8 @@ class _RecorderPlayerWidgetState extends State<RecorderPlayerWidget> {
   Future _startRecording() async {
     if (!_isRecorderReady) return;
     Directory appDirectory = await getApplicationDocumentsDirectory();
-    String filePath =
-        '${appDirectory.path}/${DateTime.now().millisecondsSinceEpoch}.aac';
+    String name = 'New recoding ${_recorderStore.records.length + 1}';
+    String filePath = '${appDirectory.path}/$name.aac';
     await _recorder.startRecorder(toFile: filePath);
   }
 

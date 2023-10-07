@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:voice_recorder_app/main.dart';
 import 'package:voice_recorder_app/models/recorder_file.dart';
+import 'package:voice_recorder_app/recorder/modals/recorder_modal_edit_name.dart';
 import 'package:voice_recorder_app/recorder/store/recorder_store.dart';
 
-class RecorderModal extends StatelessWidget {
-  RecorderModal({super.key, required RecorderFile recorderFile})
+class RecorderModalOptions extends StatelessWidget {
+  RecorderModalOptions({super.key, required RecorderFile recorderFile})
       : _recorderFile = recorderFile;
 
   final RecorderFile _recorderFile;
@@ -19,7 +20,7 @@ class RecorderModal extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Name of recorder.wav',
+            _recorderFile.nameWithoutExtension,
             style: Theme.of(context)
                 .textTheme
                 .titleLarge!
@@ -34,7 +35,6 @@ class RecorderModal extends StatelessWidget {
             onPressed: () {
               //TODO widget to share audio in social media
               Navigator.of(context).pop();
-
             },
           ),
           TextButton(
@@ -43,9 +43,11 @@ class RecorderModal extends StatelessWidget {
               style: Theme.of(context).textTheme.labelLarge!,
             ),
             onPressed: () {
-              //TODO create another modal with input name then call store to update
-              Navigator.of(context).pop();
-
+              showDialog(
+                context: context,
+                builder: (context) =>
+                    RecorderModalEditName(recorderName: _recorderFile.name),
+              );
             },
           ),
           TextButton(

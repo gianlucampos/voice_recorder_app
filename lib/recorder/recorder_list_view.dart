@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:voice_recorder_app/main.dart';
 import 'package:voice_recorder_app/models/recorder_file.dart';
-import 'package:voice_recorder_app/recorder/modals/recorder_modal.dart';
+import 'package:voice_recorder_app/recorder/modals/recorder_modal_options.dart';
 import 'package:voice_recorder_app/recorder/store/recorder_store.dart';
 
 class RecorderListView extends StatefulWidget {
@@ -43,11 +43,6 @@ class _RecorderListViewState extends State<RecorderListView> {
         _position = newPosition;
       });
     });
-    // _audioPlayer.onPlayerComplete.listen((_) {
-    //   setState(() {
-    //     _isPlaying = false;
-    //   });
-    // });
   }
 
   @override
@@ -60,7 +55,7 @@ class _RecorderListViewState extends State<RecorderListView> {
         itemBuilder: (BuildContext context, int i) {
           final RecorderFile item = _recorderStore.records[i];
           return ExpansionTile(
-            title: Text('New recoding ${_recorderStore.records.length - i}'),
+            title: Text(item.nameWithoutExtension),
             subtitle: Text(item.dtCreateFormatted),
             trailing: SizedBox(
               width: 90,
@@ -78,7 +73,7 @@ class _RecorderListViewState extends State<RecorderListView> {
                     onPressed: () {
                       showModalBottomSheet<void>(
                         context: context,
-                        builder: (context) => RecorderModal(recorderFile: item),
+                        builder: (context) => RecorderModalOptions(recorderFile: item),
                       );
                     },
                   ),

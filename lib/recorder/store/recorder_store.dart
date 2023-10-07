@@ -43,9 +43,12 @@ abstract class _RecorderStore with Store {
     required String oldName,
     required String newName,
   }) {
-    File(oldName).renameSync(newName);
-    final index = _records.indexWhere((elem) => elem.path == oldName);
-    _records[index].path = newName;
+    final index = _records.indexWhere((elem) => elem.name == oldName);
+    final oldPath = _records[index].path;
+    final newPath = _records[index].path.replaceAll(oldName, '$newName.aac');
+    File(oldPath).renameSync(newPath);
+    _records[index].path = newPath;
+    loadRecordFiles();
   }
 
   void _sortList() {
