@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:voice_recorder_app/main.dart';
 import 'package:voice_recorder_app/models/recorder_file.dart';
 import 'package:voice_recorder_app/recorder/modals/recorder_modal_edit_name.dart';
@@ -32,9 +33,14 @@ class RecorderModalOptions extends StatelessWidget {
               'Export',
               style: Theme.of(context).textTheme.labelLarge!,
             ),
-            onPressed: () {
-              //TODO widget to share audio in social media
-              Navigator.of(context).pop();
+            onPressed: () async {
+              final XFile xfile = XFile(_recorderFile.path);
+              await Share.shareXFiles(
+                [xfile],
+                text: 'Audio',
+                subject: 'Subject',
+              );
+              if (context.mounted) Navigator.of(context).pop();
             },
           ),
           TextButton(

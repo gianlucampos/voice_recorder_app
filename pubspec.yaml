@@ -9,15 +9,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # audio devices
   flutter_sound: ^9.2.13
   audioplayers: ^5.2.0
-  permission_handler: ^11.0.1
+  # directory files
   path_provider: ^2.1.1
-  logger: ^1.4.0
-  intl: ^0.18.1
+  # share media
+  share_plus: 6.3.4
+  # state management
   flutter_mobx: ^2.1.0
   mobx: ^2.2.0
   get_it: ^7.6.4
+  # others
+  permission_handler: ^11.0.1
+  logger: 1.4.0
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
