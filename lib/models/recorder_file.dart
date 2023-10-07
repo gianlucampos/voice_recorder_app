@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class RecorderFile {
   String path;
   final int size;
@@ -10,6 +12,11 @@ class RecorderFile {
   });
 
   get name => path.split('/').last;
+
+  get sizeInMb => size ~/ 1024;
+
+  get dtCreateFormatted =>
+      DateFormat('EEE, MMM d, ' 'yyyy, HH:mm').format(dtCreate);
 
   @override
   String toString() {

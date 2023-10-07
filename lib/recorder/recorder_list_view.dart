@@ -1,7 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:intl/intl.dart';
 import 'package:voice_recorder_app/main.dart';
 import 'package:voice_recorder_app/models/recorder_file.dart';
 import 'package:voice_recorder_app/recorder/modals/recorder_modal.dart';
@@ -16,12 +15,40 @@ class RecorderListView extends StatefulWidget {
 
 class _RecorderListViewState extends State<RecorderListView> {
   final RecorderStore _recorderStore = getIt<RecorderStore>();
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
-  late int _totalDuration;
-  late int _currentDuration;
-  double _completedPercentage = 0.0;
-  bool _isPlaying = false;
   int _selectedIndex = -1;
+  bool _isPlaying = false;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    _audioPlayer.onPlayerStateChanged.listen((state) {
+      setState(() {
+        _isPlaying = state == PlayerState.playing;
+      });
+    });
+
+    _audioPlayer.onDurationChanged.listen((newDuration) {
+      setState(() {
+        _duration = newDuration;
+      });
+    });
+
+    _audioPlayer.onPositionChanged.listen((newPosition) {
+      setState(() {
+        _position = newPosition;
+      });
+    });
+    // _audioPlayer.onPlayerComplete.listen((_) {
+    //   setState(() {
+    //     _isPlaying = false;
+    //   });
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,15 +61,29 @@ class _RecorderListViewState extends State<RecorderListView> {
           final RecorderFile item = _recorderStore.records[i];
           return ExpansionTile(
             title: Text('New recoding ${_recorderStore.records.length - i}'),
-            subtitle: Text(_formatDate(recordedDate: item.dtCreate)),
-            trailing: IconButton(
-              icon: const Icon(Icons.more_vert),
-              onPressed: () {
-                showModalBottomSheet<void>(
-                  context: context,
-                  builder: (context) => RecorderModal(recorderFile: item),
-                );
-              },
+            subtitle: Text(item.dtCreateFormatted),
+            trailing: SizedBox(
+              width: 90,
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      const Text('0:24'),
+                      const SizedBox(height: 10),
+                      Text('${item.sizeInMb} MB')
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () {
+                      showModalBottomSheet<void>(
+                        context: context,
+                        builder: (context) => RecorderModal(recorderFile: item),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
             onExpansionChanged: ((newState) {
               if (newState) {
@@ -52,30 +93,7 @@ class _RecorderListViewState extends State<RecorderListView> {
               }
             }),
             children: [
-              Container(
-                height: 100,
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    LinearProgressIndicator(
-                      minHeight: 5,
-                      backgroundColor: Colors.black,
-                      valueColor:
-                          const AlwaysStoppedAnimation<Color>(Colors.green),
-                      value: _selectedIndex == i ? _completedPercentage : 0,
-                    ),
-                    IconButton(
-                      icon: _selectedIndex == i
-                          ? _isPlaying
-                              ? const Icon(Icons.pause)
-                              : const Icon(Icons.play_arrow)
-                          : const Icon(Icons.play_arrow),
-                      onPressed: () => _onPlay(filePath: item.path, index: i),
-                    ),
-                  ],
-                ),
-              ),
+              _buildPositionBar(i, item),
             ],
           );
         },
@@ -83,40 +101,60 @@ class _RecorderListViewState extends State<RecorderListView> {
     });
   }
 
-  Future<void> _onPlay({required String filePath, required int index}) async {
-    AudioPlayer audioPlayer = AudioPlayer();
-
-    if (!_isPlaying) {
-      audioPlayer.play(DeviceFileSource(filePath));
-      setState(() {
-        _selectedIndex = index;
-        _completedPercentage = 0.0;
-        _isPlaying = true;
-      });
-
-      audioPlayer.onPlayerComplete.listen((_) {
-        setState(() {
-          _isPlaying = false;
-          _completedPercentage = 0.0;
-        });
-      });
-      audioPlayer.onDurationChanged.listen((duration) {
-        setState(() {
-          _totalDuration = duration.inMicroseconds;
-        });
-      });
-
-      audioPlayer.onPositionChanged.listen((duration) {
-        setState(() {
-          _currentDuration = duration.inMicroseconds;
-          _completedPercentage =
-              _currentDuration.toDouble() / _totalDuration.toDouble();
-        });
-      });
-    }
+  Widget _buildPositionBar(int i, RecorderFile item) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Slider(
+            min: 0,
+            max: _duration.inSeconds.toDouble(),
+            value: _position.inSeconds.toDouble(),
+            onChanged: (value) async {
+              // if (_selectedIndex == i) return;
+              final position = Duration(seconds: value.toInt());
+              await _audioPlayer.seek(position);
+              await _audioPlayer.resume();
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_formatTime(_position)),
+                Text(_formatTime(_duration - _position)),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: _selectedIndex == i
+                ? _isPlaying
+                    ? const Icon(Icons.pause)
+                    : const Icon(Icons.play_arrow)
+                : const Icon(Icons.play_arrow),
+            iconSize: 35,
+            onPressed: () async {
+              if (_isPlaying) {
+                await _audioPlayer.pause();
+              } else {
+                await _audioPlayer.play(DeviceFileSource(item.path));
+                setState(() {
+                  _selectedIndex = i;
+                });
+              }
+            },
+          )
+        ],
+      ),
+    );
   }
 
-  String _formatDate({required DateTime recordedDate}) {
-    return (DateFormat('EEE, MMM d, ' 'yyyy, HH:mm').format(recordedDate));
+  String _formatTime(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    final twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$twoDigitMinutes:$twoDigitSeconds';
   }
 }

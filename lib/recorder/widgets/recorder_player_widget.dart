@@ -9,7 +9,6 @@ import 'package:voice_recorder_app/main.dart';
 import 'package:voice_recorder_app/recorder/store/recorder_store.dart';
 
 class RecorderPlayerWidget extends StatefulWidget {
-
   const RecorderPlayerWidget({Key? key}) : super(key: key);
 
   @override
@@ -69,11 +68,12 @@ class _RecorderPlayerWidgetState extends State<RecorderPlayerWidget> {
           ),
         ),
         Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Text(_recordText),
-            ))
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Text(_recordText),
+          ),
+        )
       ],
     );
   }
@@ -87,8 +87,8 @@ class _RecorderPlayerWidgetState extends State<RecorderPlayerWidget> {
       case RecordingState.recording:
         await _stopRecording();
         _recordingState = RecordingState.stopped;
-        _recordIcon = Icons.fiber_manual_record;
-        _recordText = 'Record new one';
+        _recordIcon = Icons.mic;
+        _recordText = '';
         break;
 
       case RecordingState.stopped:
