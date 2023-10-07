@@ -23,6 +23,7 @@ class RecorderModalEditName extends StatelessWidget {
       actions: [
         TextButton(
             onPressed: () {
+              if(_controller.text.isEmpty) return;
               _recorderStore.updateRecorderFileName(
                 oldName: _recorderName,
                 newName: _controller.text,

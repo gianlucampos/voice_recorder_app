@@ -24,8 +24,8 @@ abstract class _RecorderStore with Store {
       value.list().listen((onData) async {
         if (onData.path.contains('.aac')) await _addRecorderFile(onData);
       }).onDone(() {
-        _sortList();
         _reverseListOrder();
+        _sortList();
       });
     });
   }
@@ -34,8 +34,8 @@ abstract class _RecorderStore with Store {
   void removeRecorderFile(RecorderFile recorderFile) {
     File(recorderFile.path).deleteSync();
     _records.remove(recorderFile);
-    _sortList();
     _reverseListOrder();
+    _sortList();
   }
 
   @action
@@ -62,7 +62,7 @@ abstract class _RecorderStore with Store {
   Future<void> _addRecorderFile(FileSystemEntity onData) async {
     final stats = await onData.stat();
     final recorderFile = RecorderFile(
-        path: onData.path, size: stats.size, dtCreate: stats.changed);
+        path: onData.path, size: stats.size, dtCreate: stats.modified);
     _records.add(recorderFile);
   }
 }
